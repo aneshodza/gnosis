@@ -19,11 +19,11 @@ echo "Executing fastchecks..."
 
 if [[ $* == *--fix* ]]; then
   echo "Fixing..."
-  BUNDLE_GEMFILE=PluginGemfile bundle exec rubocop -a --config .rubocop.yml
+  bundle exec rubocop -a --config .rubocop.yml
   return_code "Rubocop"
 else 
   echo "Note: You can use --fix to fix the errors automatically"
-  BUNDLE_GEMFILE=PluginGemfile bundle exec rubocop --config .rubocop.yml
+  bundle exec rubocop --config .rubocop.yml
   return_code "Rubocop"
 fi
 
