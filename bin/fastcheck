@@ -19,7 +19,7 @@ echo "Executing fastchecks..."
 
 if [[ $* == *--fix* ]]; then
   echo "Fixing..."
-  bundle exec rubocop -a --config .rubocop.yml
+  bundle exec rubocop -A --config .rubocop.yml
   return_code "Rubocop"
 else 
   echo "Note: You can use --fix to fix the errors automatically"
