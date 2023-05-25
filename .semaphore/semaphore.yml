@@ -30,4 +30,5 @@ blocks:
           - cd plugins
           - checkout
           - bin/setup
-          - ../../bin/setup
+          - cd ../../
+          - bin/bundle install
