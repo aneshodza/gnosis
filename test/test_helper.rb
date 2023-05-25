@@ -4,9 +4,9 @@ require 'simplecov'
 
 SimpleCov.coverage_dir('plugins/gnosis/coverage')
 SimpleCov.start do
-  # add_filter do |source_file|
-  #   source_file.lines.count < 5
-  # end
+  add_filter do |source_file|
+    source_file.lines.count < 5
+  end
 
   add_filter do |source_file|
     source_file.filename.exclude?('gnosis')

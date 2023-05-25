@@ -2,12 +2,7 @@
 
 require_relative '../test_helper'
 
-class ExampleControllerTest < ActionDispatch::IntegrationTest
-  # Replace this with your real tests.
-  def test_truth
-    assert true
-  end
-
+class ExampleControllerTest < ActionController::TestCase
   def test_index
     get :index
     assert_response :success
