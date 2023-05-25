@@ -29,6 +29,6 @@ blocks:
           - 'bin/rails db:migrate'
           - cd plugins
           - checkout
-          - bin/setup
           - cd ../../
           - bin/bundle install
+          - bin/setup
