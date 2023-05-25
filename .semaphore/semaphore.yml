@@ -31,4 +31,5 @@ blocks:
           - checkout
           - cd ../../
           - bin/bundle install
+          - cd plugins/gnosis
           - bin/setup
