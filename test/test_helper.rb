@@ -11,17 +11,6 @@ SimpleCov.start do
   add_filter do |source_file|
     source_file.filename.exclude?('gnosis')
   end
-
-  if Dir.pwd.include?('plugins/gnosis')
-    formatter SimpleCov::Formatter::SimpleFormatter
-  else
-    formatter SimpleCov::Formatter::MultiFormatter.new([
-                                                         SimpleCov::Formatter::SimpleFormatter,
-                                                         SimpleCov::Formatter::HTMLFormatter
-                                                       ])
-  end
-
-  track_files 'app/**/*.rb'
 end
 
 SimpleCov.minimum_coverage 100
