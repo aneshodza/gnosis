@@ -9,10 +9,10 @@ SimpleCov.start do
   # end
 
   add_filter do |source_file|
-    !source_file.filename.include?('gnosis')
+    source_file.filename.exclude?('gnosis')
   end
-  
-if Dir.pwd.match?(%r{plugins/gnosis})
+
+  if Dir.pwd.include?('plugins/gnosis')
     formatter SimpleCov::Formatter::SimpleFormatter
   else
     formatter SimpleCov::Formatter::MultiFormatter.new([
@@ -27,4 +27,4 @@ end
 SimpleCov.minimum_coverage 100
 
 # Load the Redmine helper
-require File.expand_path(File.dirname(__FILE__) + '/../../../test/test_helper')
+require File.expand_path("#{File.dirname(__FILE__)}/../../../test/test_helper")
