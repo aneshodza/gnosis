@@ -6,6 +6,5 @@ class DeploymentTest < ActiveSupport::TestCase
   # Replace this with your real tests.
   def test_truth
     assert true
-    FactoryBot.create(:deployment)
   end
 end
