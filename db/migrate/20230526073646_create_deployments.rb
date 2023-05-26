@@ -3,7 +3,7 @@ class CreateDeployments < ActiveRecord::Migration[6.1]
     create_table :deployments do |t|
       t.string :deploy_branch
       t.string :url
-      t.boolean :has_passed
+      t.boolean :has_passed, default: false, null: false
       t.references :pull_request, null: false, foreign_key: true
 
       t.timestamps
