@@ -1,0 +1,18 @@
+{
+  "Minitest": {
+    "coverage": {
+      "/Users/anes/c/redmine-deploy-scheduler/plugins/gnosis/app/controllers/example_controller.rb": {
+        "lines": [
+          null,
+          null,
+          1,
+          1,
+          1,
+          null,
+          null
+        ]
+      }
+    },
+    "timestamp": 1685039103
+  }
+}
