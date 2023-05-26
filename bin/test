@@ -6,6 +6,7 @@ green='\033[0;32m'
 
 rake redmine:plugins:test:functionals
 # TODO: Add other types of tests when they are implemented
+rake redmine:plugins:test:units
 
 if [[ $? -eq 0 ]]; then
   echo -e "${green}----------------------------------------"
