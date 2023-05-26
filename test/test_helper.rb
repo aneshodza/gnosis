@@ -1,13 +1,11 @@
 # frozen_string_literal: true
 
-p 'testttttttttttt'
-
 require 'simplecov'
 
 SimpleCov.coverage_dir('plugins/gnosis/coverage')
 SimpleCov.start do
   add_filter do |source_file|
-    source_file.lines.count < 5
+    source_file.lines.count < 7
   end
 
   add_filter do |source_file|
