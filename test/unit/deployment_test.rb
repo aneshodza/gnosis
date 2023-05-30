@@ -3,8 +3,8 @@
 require_relative '../test_helper'
 
 class DeploymentTest < ActiveSupport::TestCase
-  # Replace this with your real tests.
-  def test_truth
-    assert true
+  def test_belongs_to_pull_request
+    FactoryBot.create(:deployment)
+    assert_equal 1, PullRequest.where(id: Deployment.first.pull_request_id).count
   end
 end
