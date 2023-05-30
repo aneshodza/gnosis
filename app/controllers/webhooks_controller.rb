@@ -3,9 +3,6 @@
 class WebhooksController < ApplicationController
   protect_from_forgery except: %i[github_webhook_catcher semaphore_webhook_catcher]
 
-  # To use this function, you would do something like:
-  fetch_commit_history('owner/repo', 'branch')
-
   def github_webhook_catcher
     p_body = request.body.read
 
