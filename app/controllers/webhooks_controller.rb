@@ -3,6 +3,9 @@
 class WebhooksController < ApplicationController
   protect_from_forgery except: %i[github_webhook_catcher semaphore_webhook_catcher]
 
+  # To use this function, you would do something like:
+  fetch_commit_history('owner/repo', 'branch')
+
   def github_webhook_catcher
     p_body = request.body.read
 
@@ -32,12 +35,20 @@ class WebhooksController < ApplicationController
   end
 
   def verify_signature(payload_body, recieved_signature)
-    signature = "sha256=#{OpenSSL::HMAC.hexdigest(OpenSSL::Digest.new('sha256'), ENV.fetch('GITHUB_WEBHOOK_SECRET', 'test'),
-                                                  payload_body)}"
+    signature = "sha256=#{OpenSSL::HMAC.hexdigest(OpenSSL::Digest.new('sha256'),
+                                                  ENV.fetch('GITHUB_WEBHOOK_SECRET', nil), payload_body)}"
     Rack::Utils.secure_compare(signature, recieved_signature)
   end
 
   def semaphore_webhook_handler(params)
     Rails.logger.debug params
+  end
+
+  def fetch_commit_history(repo, branch)
+    Octokit.configure do |config|
+      config.access_token = ENV.fetch('GITHUB_ACCESS_TOKEN', nil)
+    end
+    client = Octokit::Client.new
+    client.commits(repo, branch)
   end
 end
