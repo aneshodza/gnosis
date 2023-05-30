@@ -10,4 +10,7 @@ group :test, :development do
 
   # Faker
   gem 'faker'
+
+  # ByeBug
+  gem 'byebug'
 end

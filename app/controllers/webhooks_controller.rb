@@ -1,19 +1,42 @@
-class WebhooksController < ApplicationController
-  skip_before_action :verify_authenticity_token
+# frozen_string_literal: true
 
-  def github_webhook
-    # Do something with the event
-    p params[:pull_request][:head][:ref]
-    p "number: #{params[:pull_request][:head][:ref].match(/\/(\d+)-/)[1]}"
-    # PullRequest.create!(action: params.body[:action], url: params.body[:pull_requests][:url],
-    #                     title: params.body[:pull_requests][:title], source_branch: params.body[:pull_requests][:head][:ref],
-    #                     target_branch: params.body[:pull_requests][:base][:ref], was_merged: params.body[:pull_requests][:merged])
+class WebhooksController < ApplicationController
+  protect_from_forgery except: %i[github_webhook_catcher semaphore_webhook_catcher]
+
+  def github_webhook_catcher
+    p_body = request.body.read
+
+    unless verify_signature(p_body, request.env['HTTP_X_HUB_SIGNATURE_256'])
+      return render json: {status: 403}, status: :forbidden
+    end
+
+    github_webhook_handler(params)
 
     render json: {status: :ok}
   end
 
-  def semaphore_webhook
-    # Do something with the event
+  def semaphore_webhook_catcher
+    semaphore_webhook_handler(params)
+
     render json: {status: :ok}
+  end
+
+  private
+
+  def github_webhook_handler(params)
+    numbers = params[:pull_request][:head][:ref].match(%r{/(\d+)})
+
+    return unless numbers.length.positive? && Issue.exists?(id: numbers[1])
+
+    PullRequest.auto_create_or_update(params.merge(issue_id: numbers[1]))
+  end
+
+  def verify_signature(payload_body, recieved_signature)
+    signature = "sha256=#{OpenSSL::HMAC.hexdigest(OpenSSL::Digest.new('sha256'), 'test', payload_body)}"
+    Rack::Utils.secure_compare(signature, recieved_signature)
+  end
+
+  def semaphore_webhook_handler(params)
+    Rails.logger.debug params
   end
 end
