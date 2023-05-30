@@ -38,14 +38,41 @@ class WebhooksController < ApplicationController
   end
 
   def semaphore_webhook_handler(params)
-    Rails.logger.debug params
+    range = params[:revision][:branch][:commit_range]
+    branch = params[:revision][:branch][:name]
+    repo = params[:repository][:slug]
+    passed = params[:pipeline][:result] == 'passed'
+
+    first_sha = range.split('...').first
+    last_sha = range.split('...').last
+
+    sha_between = fetch_commit_history(repo, branch, first_sha, last_sha)
+    create_deploys_for_pull_requests(sha_between, branch, passed)
   end
 
-  def fetch_commit_history(repo, branch)
+  def fetch_commit_history(repo, branch, first_commit, last_commit)
     Octokit.configure do |config|
       config.access_token = ENV.fetch('GITHUB_ACCESS_TOKEN', nil)
     end
     client = Octokit::Client.new
-    client.commits(repo, branch)
+    commit_sha_list = client.commits(repo, branch).pluck(:sha)
+
+    first_commit_index = commit_sha_list.index(first_commit)
+    last_commit_index = commit_sha_list.index(last_commit)
+
+    commit_sha_list[last_commit_index..first_commit_index]
+  end
+
+  def create_deploys_for_pull_requests(sha_between, branch, passed)
+    sha_between.each do |sha|
+      pr = PullRequest.find_by(merge_commit_sha: sha)
+      next unless pr
+
+      pr.deployments.create(deploy_branch: branch, url: url, has_passed: passed)
+    end
+  end
+
+  def url
+    "https://#{params[:organization][:name]}.semaphoreci.com/workflows/#{params[:workflow][:id]}/"
   end
 end

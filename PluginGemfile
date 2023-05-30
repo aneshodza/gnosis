@@ -13,4 +13,7 @@ group :test, :development do
 
   # ByeBug
   gem 'byebug'
+
+  # This uses faraday
+  gem 'octokit'
 end
