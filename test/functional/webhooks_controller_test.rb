@@ -7,10 +7,10 @@ class WebhookCatchControllerControllerTest < ActionController::TestCase
     @controller = WebhooksController.new
 
     Octokit::Client.any_instance.stubs(:commits).returns([
-      OpenStruct.new(sha: 'another_hash'),
-      OpenStruct.new(sha: 'in_between_hash'),
-      OpenStruct.new(sha: 'one_hash')
-    ])
+                                                           { sha: 'another_hash' },
+                                                           { sha: 'in_between_hash' },
+                                                           { sha: 'one_hash' }
+                                                         ])
 
     @github_webhook_hash = {
       pull_request: {
@@ -30,22 +30,22 @@ class WebhookCatchControllerControllerTest < ActionController::TestCase
 
     @semaphore_webhook_hash = {
       workflow: {
-        id: "5432cce0-196d-4898-9385-c1d670e4a9e9",
+        id: '5432cce0-196d-4898-9385-c1d670e4a9e9',
       },
       revision: {
         branch: {
-          name: "main",
-          commit_range: "one_hash...another_hash"
+          name: 'main',
+          commit_range: 'one_hash...another_hash'
         }
       },
       pipeline: {
-        result: "passed",
+        result: 'passed',
       },
       organization: {
-        name: "aneshodza",
+        name: 'aneshodza',
       },
       repository: {
-        slug: "aneshodza/test-repo",
+        slug: 'aneshodza/test-repo',
       }
     }
   end
