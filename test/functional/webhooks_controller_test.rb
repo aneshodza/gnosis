@@ -48,6 +48,11 @@ class WebhookCatchControllerControllerTest < ActionController::TestCase
         slug: 'aneshodza/test-repo',
       }
     }
+
+    FactoryBot.build_list(:pull_request, 3).each(&:save!)
+    PullRequest.first.update!(merge_commit_sha: 'one_hash')
+    PullRequest.first(2).last.update!(merge_commit_sha: 'in_between_hash')
+    PullRequest.first(3).last.update!(merge_commit_sha: 'another_hash')
   end
 
   def test_create_pull_request
@@ -80,7 +85,7 @@ class WebhookCatchControllerControllerTest < ActionController::TestCase
     assert @response.status == 200
   end
 
-  def test_with_invalid_sha
+  def test_pr_with_invalid_sha
     @request.headers['X-Hub-Signature-256'] = 'sha256=invalid'
     assert_difference('PullRequest.count', 0) do
       post :github_webhook_catcher, params: @github_webhook_hash, as: :json
@@ -89,13 +94,26 @@ class WebhookCatchControllerControllerTest < ActionController::TestCase
   end
 
   def test_create_deploys
-    FactoryBot.build_list(:pull_request, 3).each(&:save!)
-    PullRequest.first.update!(merge_commit_sha: 'one_hash')
-    PullRequest.first(2).last.update!(merge_commit_sha: 'in_between_hash')
-    PullRequest.first(3).last.update!(merge_commit_sha: 'another_hash')
-
+    @request.headers['X-Semaphore-Signature-256'] = '67fe8d050e75c1bb0c5a4091f86a734e1a1b467e05ff80607201308f24e44bcc'
     assert_difference('Deployment.count', 3) do
       post :semaphore_webhook_catcher, params: @semaphore_webhook_hash, as: :json
     end
+  end
+
+  def test_deploy_with_invalid_sha
+    @request.headers['X-Semaphore-Signature-256'] = 'invalid'
+    assert_difference('Deployment.count', 0) do
+      post :semaphore_webhook_catcher, params: @semaphore_webhook_hash, as: :json
+    end
+    assert @response.status == 403
+  end
+
+  def test_deploy_no_pr
+    PullRequest.destroy_all
+    @request.headers['X-Semaphore-Signature-256'] = '67fe8d050e75c1bb0c5a4091f86a734e1a1b467e05ff80607201308f24e44bcc'
+    assert_difference('Deployment.count', 0) do
+      post :semaphore_webhook_catcher, params: @semaphore_webhook_hash, as: :json
+    end
+    assert @response.status == 200
   end
 end
