@@ -3,8 +3,10 @@
 yaml_data = YAML.safe_load(ERB.new(Rails.root.join('plugins/gnosis/config/application.yml').read).result)
 ENV = ActiveSupport::HashWithIndifferentAccess.new(yaml_data)
 
-if ENV['GITHUB_ACCESS_TOKEN'].blank? || (ENV['GITHUB_ACCESS_TOKEN'] == 'your_token')
-  raise 'GITHUB_ACCESS_TOKEN is not set or has the default value'
+if ENV['GITHUB_ACCESS_TOKEN'].blank?
+  raise 'GITHUB_ACCESS_TOKEN is not set'
+elsif ENV['GITHUB_ACCESS_TOKEN'] == 'your_token'
+  Rails.logger.warn 'GITHUB_ACCESS_TOKEN is default value'
 end
 
 Redmine::Plugin.register :gnosis do
