@@ -32,7 +32,8 @@ class WebhooksController < ApplicationController
   end
 
   def verify_signature(payload_body, recieved_signature)
-    signature = "sha256=#{OpenSSL::HMAC.hexdigest(OpenSSL::Digest.new('sha256'), 'test', payload_body)}"
+    signature = "sha256=#{OpenSSL::HMAC.hexdigest(OpenSSL::Digest.new('sha256'), ENV.fetch('GITHUB_WEBHOOK_SECRET', 'test'),
+                                                  payload_body)}"
     Rack::Utils.secure_compare(signature, recieved_signature)
   end
 
