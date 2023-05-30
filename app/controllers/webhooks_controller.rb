@@ -3,6 +3,11 @@
 class WebhooksController < ApplicationController
   protect_from_forgery except: %i[github_webhook_catcher semaphore_webhook_catcher]
 
+  Octokit.configure do |config|
+    config.access_token = ENV.fetch('GITHUB_ACCESS_TOKEN', nil)
+  end
+  CLIENT = Octokit::Client.new
+
   def github_webhook_catcher
     github_webhook_handler(params)
 
@@ -39,11 +44,7 @@ class WebhooksController < ApplicationController
   end
 
   def fetch_commit_history(repo, branch, first_commit, last_commit)
-    Octokit.configure do |config|
-      config.access_token = ENV.fetch('GITHUB_ACCESS_TOKEN', nil)
-    end
-    client = Octokit::Client.new
-    commit_sha_list = client.commits(repo, branch).pluck(:sha)
+    commit_sha_list = CLIENT.commits(repo, branch).pluck(:sha)
 
     first_commit_index = commit_sha_list.index(first_commit)
     last_commit_index = commit_sha_list.index(last_commit)
@@ -56,7 +57,7 @@ class WebhooksController < ApplicationController
       pr = PullRequest.find_by(merge_commit_sha: sha)
       next unless pr
 
-      pr.deployments.create(deploy_branch: branch, url: url, has_passed: passed)
+      Deployment.auto_create_or_update(branch, pr.id, url, passed)
     end
   end
 
