@@ -51,6 +51,8 @@ class WebhookCatchControllerControllerTest < ActionController::TestCase
   end
 
   def test_create_pull_request
+    @request.headers['X-Hub-Signature-256'] =
+      'sha256=a61084e5bafb012607e8b4ea9f37260774bf1f00617861f2ae7aef73888234f7'
     assert_difference('PullRequest.count', 1) do
       post :github_webhook_catcher, params: @github_webhook_hash, as: :json
     end
@@ -61,6 +63,7 @@ class WebhookCatchControllerControllerTest < ActionController::TestCase
   end
 
   def test_create_pull_request_no_issue
+    @request.headers['X-Hub-Signature-256'] = 'sha256=b15df5baab94e31571b043e810545ec49075dedb0dd7aa78b8f185501248c918'
     @github_webhook_hash[:pull_request][:head][:ref] = 'feature/420-some-feature-no-issue'
     assert_difference('PullRequest.count', 0) do
       post :github_webhook_catcher, params: @github_webhook_hash, as: :json
@@ -68,12 +71,21 @@ class WebhookCatchControllerControllerTest < ActionController::TestCase
   end
 
   def test_create_pull_request_no_issue_in_branch_name
+    @request.headers['X-Hub-Signature-256'] = 'sha256=5660dd5179a31c18d5b064cc4ee0293f76c5b9e61ed22be9894ba7b585005109'
     @github_webhook_hash[:pull_request][:head][:ref] = 'feature/some-feature-no-issue'
     assert_difference('PullRequest.count', 0) do
       post :github_webhook_catcher, params: @github_webhook_hash, as: :json
     end
     # Just because there is no issue, doesn't mean it should fail
     assert @response.status == 200
+  end
+
+  def test_with_invalid_sha
+    @request.headers['X-Hub-Signature-256'] = 'sha256=invalid'
+    assert_difference('PullRequest.count', 0) do
+      post :github_webhook_catcher, params: @github_webhook_hash, as: :json
+    end
+    assert @response.status == 403
   end
 
   def test_create_deploys

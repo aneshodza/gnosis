@@ -9,6 +9,12 @@ class WebhooksController < ApplicationController
   CLIENT = Octokit::Client.new
 
   def github_webhook_catcher
+    p_body = request.body.read
+
+    unless verify_signature(p_body, request.env['HTTP_X_HUB_SIGNATURE_256'])
+      return render json: {status: 403}, status: :forbidden
+    end
+
     github_webhook_handler(params)
 
     render json: {status: :ok}
@@ -41,6 +47,12 @@ class WebhooksController < ApplicationController
 
     sha_between = fetch_commit_history(repo, branch, first_sha, last_sha)
     create_deploys_for_pull_requests(sha_between, branch, passed)
+  end
+
+  def verify_signature(payload_body, recieved_signature)
+    signature = "sha256=#{OpenSSL::HMAC.hexdigest(OpenSSL::Digest.new('sha256'),
+                                                  ENV.fetch('GITHUB_WEBHOOK_SECRET', nil), payload_body)}"
+    Rack::Utils.secure_compare(signature, recieved_signature)
   end
 
   def fetch_commit_history(repo, branch, first_commit, last_commit)
