@@ -24,7 +24,7 @@ class WebhooksController < ApplicationController
   private
 
   def github_webhook_handler(params)
-    numbers = params[:pull_request][:head][:ref].match(%r{/(\d+)})
+    numbers = params[:pull_request][:head][:ref].match(%r{/(\d+)}) || []
 
     return unless numbers.length.positive? && Issue.exists?(id: numbers[1])
 

@@ -5,6 +5,13 @@ require_relative '../test_helper'
 class WebhookCatchControllerControllerTest < ActionController::TestCase
   def setup
     @controller = WebhooksController.new
+
+    Octokit::Client.any_instance.stubs(:commits).returns([
+      OpenStruct.new(sha: 'another_hash'),
+      OpenStruct.new(sha: 'in_between_hash'),
+      OpenStruct.new(sha: 'one_hash')
+    ])
+
     @github_webhook_hash = {
       pull_request: {
         state: 'closed',
@@ -18,6 +25,27 @@ class WebhookCatchControllerControllerTest < ActionController::TestCase
         },
         merged: true,
         merge_commit_sha: '19a89f0050eacf201ccd058d5e28cddf2b035bfc'
+      }
+    }
+
+    @semaphore_webhook_hash = {
+      workflow: {
+        id: "5432cce0-196d-4898-9385-c1d670e4a9e9",
+      },
+      revision: {
+        branch: {
+          name: "main",
+          commit_range: "one_hash...another_hash"
+        }
+      },
+      pipeline: {
+        result: "passed",
+      },
+      organization: {
+        name: "aneshodza",
+      },
+      repository: {
+        slug: "aneshodza/test-repo",
       }
     }
   end
@@ -42,11 +70,32 @@ class WebhookCatchControllerControllerTest < ActionController::TestCase
     end
   end
 
+  def test_create_pull_request_no_issue_in_branch_name
+    @github_webhook_hash[:pull_request][:head][:ref] = 'feature/some-feature-no-issue'
+    @request.headers['X-Hub-Signature-256'] = 'sha256=5660dd5179a31c18d5b064cc4ee0293f76c5b9e61ed22be9894ba7b585005109'
+    assert_difference('PullRequest.count', 0) do
+      post :github_webhook_catcher, params: @github_webhook_hash, as: :json
+    end
+    # Just because there is no issue, doesn't mean it should fail
+    assert @response.status == 200
+  end
+
   def test_with_invalid_sha
     @request.headers['X-Hub-Signature-256'] = 'sha256=invalid'
     assert_difference('PullRequest.count', 0) do
       post :github_webhook_catcher, params: @github_webhook_hash, as: :json
     end
     assert @response.status == 403
+  end
+
+  def test_create_deploys
+    FactoryBot.build_list(:pull_request, 3).each(&:save!)
+    PullRequest.first.update!(merge_commit_sha: 'one_hash')
+    PullRequest.first(2).last.update!(merge_commit_sha: 'in_between_hash')
+    PullRequest.first(3).last.update!(merge_commit_sha: 'another_hash')
+
+    assert_difference('Deployment.count', 3) do
+      post :semaphore_webhook_catcher, params: @semaphore_webhook_hash, as: :json
+    end
   end
 end
