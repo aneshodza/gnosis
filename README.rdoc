@@ -14,5 +14,5 @@ To make this magic work there are only a few steps you have to follow and certai
 === Conventions you need to keep
 The plugin needs information on which Pull Requests belong to which issues, which is why there are set conventions for branch
 naming. When you create a branch that is connected to a certain Issue it should be named as follows:
-[feature|bugfix|anything]/[issue number]-[description]. The only important part of this is the /[issue number] as that's how
+something/issue_number-description. The only important part of this is the /issue_number as that's how
 the plugin is able to connect PRs to issues.
