@@ -4,14 +4,13 @@ class NewSectionHookListener < Redmine::Hook::ViewListener
   def view_issues_show_description_bottom(context={})
     @context = context
     setup
-    content = <<-HTML
+    <<-HTML
       <hr/>
       <p><strong>Pull Requests</strong></p>
       <ul>
         #{@pr_string}
       </ul>
     HTML
-    content
   end
 
   private
@@ -24,7 +23,8 @@ class NewSectionHookListener < Redmine::Hook::ViewListener
   end
 
   def get_prs
-    @prs = ActiveRecord::Base.connection.exec_query("SELECT * FROM pull_requests WHERE issue_id = (#{@context[:issue].id})").to_a
+    @prs = ActiveRecord::Base.connection
+                             .exec_query("SELECT * FROM pull_requests WHERE issue_id = (#{@context[:issue].id})").to_a
   end
 
   def get_deployments
@@ -38,7 +38,11 @@ class NewSectionHookListener < Redmine::Hook::ViewListener
     @deployments.each do |deployment_list|
       formatted_deployment_list = []
       deployment_list.each do |deployment|
-        formatted_deployment_list << "<li><a href='#{deployment['url']}' target='_blank'>#{deployment['deploy_branch']}</a></li>"
+        formatted_deployment_list << <<-LISTOBJECT
+          <li>
+            <a href='#{deployment['url']}' target='_blank'>#{deployment['deploy_branch']}</a>
+          </li>
+        LISTOBJECT
       end
       @deployments_strings << formatted_deployment_list
     end
@@ -47,14 +51,14 @@ class NewSectionHookListener < Redmine::Hook::ViewListener
   def set_pr_string
     @pr_string = @prs.each_with_index.map do |pr, index|
       formatted_deployments_list = @deployments_strings[index].join
-      <<-ListObject
+      <<-LISTOBJECT
       <li>
         <a href='#{pr['url']}' target='_blank'>#{pr['title']}</a>
         <ul>
           #{formatted_deployments_list}
         </ul>  
       </li>
-      ListObject
+      LISTOBJECT
     end.join
   end
 end
