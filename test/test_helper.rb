@@ -12,7 +12,7 @@ SimpleCov.start do
   end
 
   add_filter do |source_file|
-    source_file.filename.exclude?('gnosis/app')
+    source_file.filename.exclude?('gnosis/app') && source_file.filename.exclude?('gnosis/lib')
   end
 end
 
