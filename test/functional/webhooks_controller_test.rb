@@ -70,7 +70,7 @@ class WebhookCatchControllerControllerTest < ActionController::TestCase
   def test_update_pull_request_existing_url
     PullRequest.auto_create_or_update(@github_webhook_hash.merge(issue_id: Issue.first.id))
     @request.headers['X-Hub-Signature-256'] =
-      'sha256=ed37b875f6877950542db3adbb9ba9d53ecb071970f90b234c37f2acd48e1cb34'
+      'sha256=ed37b875f6877950542db3adbb9ba9d53ecb071970f90b234c37f2acd48e1cb3'
     @github_webhook_hash[:pull_request][:state] = 'open'
     assert_difference('PullRequest.count', 0) do
       post :github_webhook_catcher, params: @github_webhook_hash, as: :json
