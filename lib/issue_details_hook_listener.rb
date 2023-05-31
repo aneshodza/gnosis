@@ -52,7 +52,7 @@ class NewSectionHookListener < Redmine::Hook::ViewListener
       formatted_deployments_list = @deployments_strings[index].join
       <<-LISTOBJECT
       <li>
-        <a href='#{pr['url']}' target='_blank'>#{pr['title']}</a>
+        <a href='#{pr['url']}' target='_blank'>#{pr['title']} (#{pr['state']})</a>
         <ul>
           #{formatted_deployments_list}
         </ul>  
