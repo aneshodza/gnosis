@@ -1,17 +1,19 @@
+# frozen_string_literal: true
+
 require File.expand_path("#{File.dirname(__FILE__)}/../gnosis_system_test")
 
 class PullRequestListTest < GnosisSystemTest
   def setup
     login
     @prs = []
-    3.times do |i|
+    3.times do |_i|
       @prs << FactoryBot.create(:pull_request, issue_id: 1)
     end
     FactoryBot.create(:deployment, pull_request_id: @prs[0].id)
     FactoryBot.create(:deployment, pull_request_id: @prs[0].id, deploy_branch: 'develop')
     FactoryBot.create(:deployment, pull_request_id: @prs[1].id, deploy_branch: 'develop')
     visit 'issues/1'
-  end 
+  end
 
   def test_view_open
     assert page.has_content?('Pull Requests')

@@ -7,7 +7,7 @@ class NewSectionHookListener < Redmine::Hook::ViewListener
     <<-HTML
       <hr/>
       <p><strong>Pull Requests</strong></p>
-      #{@pr_string.length > 0 ? "<ul>#{@pr_string}</ul>" : 'There are currently no PRs open for this issue'}
+      #{@pr_string.length.positive? ? "<ul>#{@pr_string}</ul>" : 'There are currently no PRs open for this issue'}
     HTML
   end
 
