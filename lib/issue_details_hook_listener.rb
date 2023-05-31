@@ -7,9 +7,7 @@ class NewSectionHookListener < Redmine::Hook::ViewListener
     <<-HTML
       <hr/>
       <p><strong>Pull Requests</strong></p>
-      <ul>
-        #{@pr_string}
-      </ul>
+      #{@pr_string.length > 0 ? "<ul>#{@pr_string}</ul>" : 'There are currently no PRs open for this issue'}
     HTML
   end
 
@@ -39,7 +37,7 @@ class NewSectionHookListener < Redmine::Hook::ViewListener
       deployment_list.each do |deployment|
         formatted_deployment_list << <<-LISTOBJECT
           <li>
-            <a href='#{deployment['url']}' target='_blank'>#{deployment['deploy_branch']}</a>
+            <a href='#{deployment['url']}' target='_blank' id='deployment-#{deployment['id']}'>#{deployment['deploy_branch']}</a>
           </li>
         LISTOBJECT
       end
@@ -52,7 +50,7 @@ class NewSectionHookListener < Redmine::Hook::ViewListener
       formatted_deployments_list = @deployments_strings[index].join
       <<-LISTOBJECT
       <li>
-        <a href='#{pr['url']}' target='_blank'>#{pr['title']} (#{pr['state']})</a>
+        <a href='#{pr['url']}' target='_blank' id='pr-#{pr['id']}'>#{pr['title']} (#{pr['state']})</a>
         <ul>
           #{formatted_deployments_list}
         </ul>  

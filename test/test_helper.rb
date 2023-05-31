@@ -2,6 +2,7 @@
 
 require 'simplecov'
 
+ENV['GOOGLE_CHROME_OPTS_ARGS'] = 'headless,disable-gpu,no-sandbox,disable-dev-shm-usage'
 ENV['GITHUB_WEBHOOK_SECRET'] = 'test'
 ENV['SEMAPHORE_WEBHOOK_SECRET'] = 'test'
 
@@ -44,6 +45,8 @@ User.create!(
 
 name = Faker::Lorem.word
 Project.create!(name: name, identifier: name.downcase, is_public: false, description: '…', issues: [
+                  Issue.new(subject: Faker::Lorem.word, description: '…', tracker: Tracker.first, author: User.first,
+                            status: IssueStatus.first, priority: IssuePriority.first),
                   Issue.new(subject: Faker::Lorem.word, description: '…', tracker: Tracker.first, author: User.first,
                             status: IssueStatus.first, priority: IssuePriority.first)
                 ])
