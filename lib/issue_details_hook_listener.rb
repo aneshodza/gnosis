@@ -23,13 +23,12 @@ class NewSectionHookListener < Redmine::Hook::ViewListener
   end
 
   def get_prs
-    @prs = ActiveRecord::Base.connection
-                             .exec_query("SELECT * FROM pull_requests WHERE issue_id = (#{@context[:issue].id})").to_a
+    @prs = PullRequest.where(issue_id: @context[:issue].id).to_a
   end
 
   def get_deployments
     @deployments = @prs.map do |pr|
-      ActiveRecord::Base.connection.exec_query("SELECT * FROM deployments WHERE pull_request_id = (#{pr['id']})").to_a
+      Deployment.where(pull_request_id: pr['id']).to_a
     end
   end
 
