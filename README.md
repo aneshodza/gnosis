@@ -1,6 +1,8 @@
-# gnosis
+# ⚠️ This repository is not the newest version ⚠️
+This Repository is just an archive of the project. It has been archived on the 5th of june 2023 as that is the hand in date for my IPA. For the newest version, check out the [Renuo AG](https://github.com/renuo/), they are the official maintainers.
 
-Welcome to gnosis!
+# gnosis
+Welcome to gnosis!  
 This is a Redmine Plugin with the goal of making your development process easier to keep an overview of.
 
 ## What does this plugin do?
